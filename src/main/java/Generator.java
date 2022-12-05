@@ -5,25 +5,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Generator {
 
-    private static final String dataFileName = "random-file";
+    private static final String dataFileName = "files/random-file";
     private static long writtenBytes;
-
-//    private static void writeLineToFile(int fileNumber, String info) throws IOException {
-//        try (FileWriter fileWriter = new FileWriter(String.format(dataFileName, fileNumber));
-//             PrintWriter printWriter = new PrintWriter(fileWriter)) {
-//            printWriter.print(info);
-//            printWriter.print(System.lineSeparator());
-//            writtenBytes += info.getBytes(StandardCharsets.UTF_8).length;
-//            writtenBytes += System.lineSeparator().getBytes(StandardCharsets.UTF_8).length;
-//        }
-//    }
-
     private static void generateFileWithOpenTSDBData(long fileSize) throws IOException {
 
-        for (byte i = 3; i < 9; i++) {
+        for (byte i = 5; i < 6; i++) {
             String fileName = String.format("%s%s", dataFileName, i);
             do{
-                long unixSecondsNow = Instant.now().getEpochSecond();
+                long unixSecondsNow = Instant.now().toEpochMilli();
                 int cpuTagValue = ThreadLocalRandom.current().nextInt(1, 32);
                 int hostTagValue = ThreadLocalRandom.current().nextInt(100, 200) + 1;
                 try (FileWriter fileWriter = new FileWriter(fileName,true);
@@ -44,7 +33,7 @@ public class Generator {
 
     public static void main(String[] args) {
         try {
-            int randomSize = ThreadLocalRandom.current().nextInt(100*(1024*1024), 120*(1024*1024));
+            int randomSize = ThreadLocalRandom.current().nextInt(1000*(1024*1024), 1200*(1024*1024));
             System.out.format("File generation with size %d MB has started.", randomSize/(1024*1024));
             Thread.sleep(2000);
             generateFileWithOpenTSDBData(randomSize);
@@ -54,6 +43,7 @@ public class Generator {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
     }
 
 }
