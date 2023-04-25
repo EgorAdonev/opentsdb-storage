@@ -1,40 +1,61 @@
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class NumberConverter {
-    public static void main(String[] args) {
-        try {
-            System.out.println(readCsvFileFromHardware("C:\\Users\\egodo\\Downloads\\experiment_rez\\Test2.ch2.csv"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static List<Short> readCsvFileFromHardware(String filename) throws IOException {
-        String line;
-        String[] values;
-        int valueCount = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            List<List<String>> list = new ArrayList<>();
-            while ((line = br.readLine()) != null) {
-                valueCount += line.split(";").length;
-                list.add(Arrays.asList(line.split(";")));
-            }
-//            short[] shorts = new short[valueCount];
-            List<Short> shortList = new ArrayList<>();
-            for (List<String> stringList: list) {
-                for (String str : stringList) {
-                    shortList.add(Short.parseShort(str));
+    public static void main(String[] args) throws IOException {
+        File dir = new File("C:\\Users\\egodo\\Downloads\\experiment_rez");
+        if(dir.isDirectory()) {
+            File[] directoryListing = dir.listFiles();
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
                 }
             }
-//            shorts = (short[]) shortList.toArray();
-            return shortList;
+        }
+//            System.out.println(readCsvFileFromHardware("C:\\Users\\egodo\\Downloads\\experiment_rez\\Test2.ch2.csv"));
+    }
+
+    public static List<Double> readCsvFileFromHardware(File file) throws IOException {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            List<List<String>> list = new ArrayList<>();
+            List<Double> doubleList = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                list.add(Arrays.asList(line.split(";")));
+                for (List<String> stringList: list) {
+                    for (String str : stringList) {
+                        double number = Short.parseShort(str)/Math.pow(10,(double) str.toCharArray().length);
+                        doubleList.add(number);
+                    }
+                }
+            }
+            return doubleList;
         }
     }
 
+    public static List<Double> readCsvFileFromHardware(String filename) throws IOException {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            List<List<String>> list = new ArrayList<>();
+            List<Double> doubleList = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                list.add(Arrays.asList(line.split(";")));
+                for (List<String> stringList: list) {
+                    for (String str : stringList) {
+                        double number = Short.parseShort(str)/Math.pow(10,(double) str.toCharArray().length);
+                        doubleList.add(number);
+                    }
+                }
+            }
+            return doubleList;
+        }
+    }
 
     public double[] readBinaryFileFromHardware(File file) throws FileNotFoundException {
         short[] values;
