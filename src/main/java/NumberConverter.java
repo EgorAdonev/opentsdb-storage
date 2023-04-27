@@ -33,9 +33,9 @@ public class NumberConverter {
                         //побитовое отрицание
                         String twoInPower = Integer.toBinaryString((int)Math.pow(2.0,15.0)).replace('0','1');
                         //char[] arr = twoInPower.toCharArray();
-                        num &= Integer.parseInt(twoInPower,2)>>1;
+                        num &= Integer.parseInt(twoInPower,2)<<1;
                         String bin = Integer.toBinaryString(num);
-                        short sh = bin.charAt(0) == '-' ? (short) (Short.parseShort(str) * (-1)) : Short.parseShort(str);
+                        short sh = bin.charAt(0) == '-' ? (short) (Short.parseShort(bin,2) * (-1)) : Short.parseShort(bin,2);
                         //System.out.println(bin.length());
                         bin = String.valueOf(sh);
                         //bin = String.valueOf(Short.parseShort(bin,2));

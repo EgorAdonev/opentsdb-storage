@@ -10,6 +10,8 @@ import java.util.Random;
 
 
 public class OTSDBFFTransformer {
+
+
     private static double[] toDoubleArray(List<Double> values) {
         double[] result = new double[values.size()];
         int i = 0;
@@ -25,55 +27,77 @@ public class OTSDBFFTransformer {
         return result;
     }
     static List<Double> values;
+
+    protected static final int SAMPLE_RATE = 16 * 1024;
+    private int samples;
+
+    public double[] createSinWaveBuffer(double freq, int ms) {
+        samples = (int)((ms * SAMPLE_RATE) / 1000);
+        double[] output = new double[samples];
+
+        double period = (double)SAMPLE_RATE / freq;
+        for (int i = 0; i < output.length; i++) {
+            double angle = 2.0 * Math.PI * i / period;
+            output[i] = Math.sin(angle);
+        }
+
+        return output;
+    }
     public static void main(String[] args) {
         long nanoStart = System.nanoTime();
+        long timeElapsed = System.nanoTime() - nanoStart;
+        //System.out.println(Arrays.toString(spectrumValues)+'\n');
+        System.out.println(timeElapsed);
+    }
+    double[] fft(double[] arr){
         FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
-        List<Double> collection = new ArrayList<>(65536);
-//        Random rand = new Random();
-//        for (int i = 0; i < 65536; i++) {
-//            collection.add(i,rand.nextDouble());
+//        List<Double> collection = new ArrayList<>(samples);
+////        Random rand = new Random();
+//        for (int i = 0; i < samples; i++) {
+//            collection.add(i, arr[i]);
 //        }
-//        while (values.hasNextValue()) {
-//            collection.add(new Complex(values.nextDoubleValue()));
-//        }
-        double[] spectrumValues = new double[collection.size()];
-        Complex[] fftResult = fft.transform(toDoubleArray(collection), TransformType.FORWARD);
+        double[] spectrumValues = new double[arr.length];
+        //Complex[] fftResult = fft.transform(toDoubleArray(collection), TransformType.FORWARD);
+        double[] doubles = prefft(arr);
+        Complex[] fftResult = fft.transform(doubles, TransformType.FORWARD);
         //вычисляем модуль квадратов действительной и мнимой части для построения амплитудного спектра
-        for (int i = 0; i < fftResult.length; i++) {
+        for (int i = 0; i < arr.length; i++) {
             double rr = (fftResult[i].getReal());
             double ri = (fftResult[i].getImaginary());
             spectrumValues[i] = Math.sqrt((rr * rr) + (ri * ri));
         }
-        long timeElapsed = System.nanoTime() - nanoStart;
-        System.out.println(Arrays.toString(spectrumValues)+'\n');
-        System.out.println(timeElapsed);
+        return spectrumValues;
     }
-//    private static Complex W (int k ,int N) {
-//        if (k % N == 0) return new Complex (1);
-//        else {
-//            double arg = -2 * Math.PI * k / N ;
-//            return new Complex(Math.cos(arg), Math.sin(arg));
-//        }
-//    }
-//
-//    public static Complex[] prefft(Complex[] x) {
-//        //Since the FFT requires the number of elements to be a multiple of 2,
-//        //this method adds the required number of zeros at the end of the array.
-//        //This method must be used before the FFT.
-//        int N = x.length;
-//        boolean b = true;
-//        int i = 0;
-//        while (b) {
-//            if (N == Math.pow(2 ,++i)) return x;
-//            else if (N < Math.pow(2 ,i)) b = false ;
-//        }
-//        Complex[] X = new Complex[( int ) Math.pow (2, i)];
-//        for (int  j = 0;j < Math.pow (2 ,i); j++) {
-//            if (j < N) X[j] = x[j];
-//            else  X [j] = Complex.ZERO;
-//        }
-//        return X;
-//    }
+    public static Complex[] prefft(Complex[] x) {
+        int N = x.length;
+        boolean b = true;
+        int i = 0;
+        while (b) {
+            if (N == Math.pow(2 ,++i)) return x;
+            else if (N < Math.pow(2 ,i)) b = false ;
+        }
+        Complex[] X = new Complex[( int ) Math.pow (2, i)];
+        for (int  j = 0;j < Math.pow (2 ,i); j++) {
+            if (j < N) X[j] = x[j];
+            else  X [j] = Complex.ZERO;
+        }
+        return X;
+    }
+    public static double[] prefft(double[] x) {
+        int N = x.length;
+        boolean b = true;
+        int i = 0;
+        while (b) {
+            if (N == Math.pow(2 ,++i)) return x;
+            else if (N < Math.pow(2 ,i)) b = false ;
+        }
+        double[] X = new double[(int) Math.pow(2,i)];
+        for (int  j = 0;j < Math.pow (2 ,i); j++) {
+            if (j < N) X[j] = x[j];
+            else  X[j] = 0.0;
+        }
+        return X;
+    }
 //
 //    public static Complex [] fft ( Complex [] x ) {
 //        //FFT itself
