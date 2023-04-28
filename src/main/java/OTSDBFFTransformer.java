@@ -38,7 +38,7 @@ public class OTSDBFFTransformer {
         double period = (double)SAMPLE_RATE / freq;
         for (int i = 0; i < output.length; i++) {
             double angle = 2.0 * Math.PI * i / period;
-            output[i] = Math.sin(angle);
+            output[i] = Math.sin(angle)/(1024*8);
         }
 
         return output;

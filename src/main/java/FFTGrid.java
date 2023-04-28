@@ -1,5 +1,3 @@
-import javafx.scene.chart.Chart;
-import javafx.scene.chart.ValueAxis;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -8,6 +6,8 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.XYSeries;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.RangeType;
@@ -18,11 +18,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class FFTGrid extends JFrame{
-    private JLabel fftLabel;
+    private JLabel fftLabel = new JLabel("");
     private JPanel lineGraph = new JPanel();
-    private JEditorPane editorPanel;
+    private JPanel chartGraph = new JPanel();
+
     OTSDBFFTransformer transformer = new OTSDBFFTransformer();
-    DefaultCategoryDataset valueDataset = new DefaultCategoryDataset();
+    // DefaultCategoryDataset valueDataset = new DefaultCategoryDataset();
 
     public FFTGrid(){
         super("Быстрое преобразование Фурье модуль для БД");
@@ -31,49 +32,68 @@ public class FFTGrid extends JFrame{
     }
 
 
-    private void showLineGraph(){
-        JFreeChart jfc = ChartFactory.createLineChart("БПФ","частота", "амплитуда",valueDataset,
-                PlotOrientation.VERTICAL,false,true,false);
-
+    private void showLineGraph() {
+//        JFreeChart jfc = ChartFactory.createLineChart("БПФ","частота", "амплитуда",valueDataset,
+//                PlotOrientation.VERTICAL,false,true,false);
 //        ChartFactory.createXYLineChart()
-        //jfc.getLegend().setFrame(BlockBorder.NONE);
-//        valueDataset.setValue(100,"значение",String.valueOf(0.25));
-//        valueDataset.setValue(150,"значение",String.valueOf(0.5));
-//        valueDataset.setValue(200,"значение",String.valueOf(0.75));
-//        valueDataset.setValue(250,"значение",String.valueOf(1));
-        double[] spectr = transformer.fft(transformer.createSinWaveBuffer(100, 100));
-        for (int i = 0; i < spectr.length/2 ; i++) {
-            valueDataset.addValue(spectr[i],"значение",String.valueOf(i));
+        double[] input = transformer.createSinWaveBuffer(500, 1000);
+        double[] spectr = transformer.fft(input);
+        
+//        for (int i = 0; i < spectr.length/2 ; i++) {
+//            valueDataset.addValue(spectr[i],"значение",String.valueOf(i));
+//        }
+        XYSeries inputXY = new XYSeries("входной ряд");
+        for (int i = 0; i < input.length; i++) {
+            inputXY.add(i, input[i]);
         }
+        XYSeriesCollection inputCollection = new XYSeriesCollection(inputXY);
+        JFreeChart signalChart = ChartFactory.createXYLineChart("исходные данные", "время(мс)",
+                "амплитуда", inputCollection);
 
-        CategoryPlot lineCategory = jfc.getCategoryPlot();
+        XYSeries xySeries = new XYSeries("амплитудный спектр");
+        for (int i = 0; i < spectr.length/2; i++) {
+            xySeries.add(i, spectr[i]);
+        }
+        XYSeriesCollection xySeriesCollection = new XYSeriesCollection(xySeries);
+        JFreeChart fftChart = ChartFactory.createXYLineChart("амплитудный спектр", "частота",
+                "амплитуда", xySeriesCollection);
+
+//        CategoryPlot lineCategory = jfc.getCategoryPlot();
         //lineCategory.setDomainAxis(new CategoryAxis("амплитуда"));
 //        lineCategory.setOrientation(PlotOrientation.VERTICAL);
-        lineCategory.setBackgroundPaint(Color.black);
-//        XYPlot rangeAxis = (XYPlot) jfc.getXYPlot();
-        NumberAxis rangeAxis = (NumberAxis) lineCategory.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+//        lineCategory.setBackgroundPaint(Color.black);
+//        XYPlot rangeAxis = (XYPlot) fftChart.getXYPlot();
 
+//        NumberAxis rangeAxis = (NumberAxis) lineCategory.getRangeAxis();
+//        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        LineAndShapeRenderer lineAndShapeRenderer = (LineAndShapeRenderer) lineCategory.getRenderer();
-        Color lineGraphColor = new Color(255,131,0);
-        lineAndShapeRenderer.setSeriesPaint(0,lineGraphColor);
+//        LineAndShapeRenderer lineAndShapeRenderer = (LineAndShapeRenderer) lineCategory.getRenderer();
+//        Color lineGraphColor = new Color(255,131,0);
+//        lineAndShapeRenderer.setSeriesPaint(0,lineGraphColor);
 
-        ChartPanel lineChartPanel = new ChartPanel(jfc);
+        ChartPanel lineChartPanel = new ChartPanel(fftChart);
         lineChartPanel.setFillZoomRectangle(true);
         lineChartPanel.setMouseWheelEnabled(true);
+
         lineGraph.removeAll();
-        lineGraph.add(lineChartPanel,BorderLayout.CENTER);
+        lineGraph.add(lineChartPanel, BorderLayout.EAST);
         lineGraph.validate();
 
+        // ChartPanel chartPanel = new ChartPanel(signalChart);
+        // chartPanel.setFillZoomRectangle(true);
+        // chartPanel.setMouseWheelEnabled(true);
+
+        // chartGraph.removeAll();
+        // chartGraph.add(chartPanel, BorderLayout.WEST);
+        // chartGraph.validate();
     }
     private void drawUI() {
         //JFrame mainFrame = new JFrame("БПФ модуль для БД");
         lineGraph.setForeground(new Color(24, 38, 176));
+        chartGraph.setForeground(new Color(176, 38, 24));
         JButton stopButton = new JButton("\u2715");
         stopButton.setHorizontalAlignment(SwingConstants.CENTER);
         stopButton.setBackground(new Color(255, 57, 0));
-//        stopButton.setBorderPainted(false);
         stopButton.setSize(50,50);
         stopButton.addActionListener(event -> {
             System.exit(0);
@@ -83,9 +103,12 @@ public class FFTGrid extends JFrame{
         super.add(stopButton);
 //        JPanel listPane = lineGraph;
 //        listPane.setLayout(new BoxLayout(lineGraph, BoxLayout.PAGE_AXIS));
+
         super.add(lineGraph);
+        // super.add(chartGraph);
+        
         super.setVisible(true);
-        super.setBounds(1000,400,512,512);
+        super.setBounds(1000,400,1280,1024);
     }
 
 }
