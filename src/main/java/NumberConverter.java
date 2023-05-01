@@ -28,21 +28,36 @@ public class NumberConverter {
             while ((line = br.readLine()) != null) {
                     for (String str : line.split(";")) {
                         short num = Short.parseShort(str);
-                                //str.charAt(0) == '-' ? (short) (Short.parseShort(str) * (-1)) : Short.parseShort(str);
-                        //num = (short) (0b1 << num);
-                        //побитовое отрицание
-                        String twoInPower = Integer.toBinaryString((int)Math.pow(2.0,15.0)).replace('0','1');
-                        //char[] arr = twoInPower.toCharArray();
-                        num &= Integer.parseInt(twoInPower,2)<<1;
-                        String bin = Integer.toBinaryString(num);
-                        short sh = bin.charAt(0) == '-' ? (short) (Short.parseShort(bin,2) * (-1)) : Short.parseShort(bin,2);
-                        //System.out.println(bin.length());
-                        bin = String.valueOf(sh);
+                        String bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
+                        if(num < 0){
+                            bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
+                        }
+//                        String bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
+//                        bin = bin.substring(bin.indexOf("1"));
+                        char[] chars = bin.toCharArray();
+
+                        float mantissa = 0f;
+                        float result = 0f;
+
+                        System.out.println(bin);
+                        for (int i = 1; i < bin.length()-1; i++) {
+                            if(chars[0] == '1') {
+                                chars[i] = chars[i] == '1' ? '0' : '1';
+                            }
+                            char digit = chars[i];
+
+                            switch (digit){
+                                case '0':
+                                    mantissa += 0 * Math.pow(2,-i);
+                                case '1':
+                                    mantissa += 1 * Math.pow(2,-i);
+                            }
+                            result = chars[0] == '1' ? mantissa * (-1f) : mantissa;
+                        }
+                        System.out.println(result);
                         //bin = String.valueOf(Short.parseShort(bin,2));
-                        //int i = bin.charAt(0) == '1' ? Integer.parseInt(str) << 0b0 : Integer.parseInt(str) << 0b1;
-                        float number = (float) Float.parseFloat(bin);
-                               // /Math.pow(10,(double) str.toCharArray().length);
-                        doubleList.add(number);
+//                        float number = (float) Float.parseFloat(bin);
+                        doubleList.add(result);
                     }
             }
             return doubleList;

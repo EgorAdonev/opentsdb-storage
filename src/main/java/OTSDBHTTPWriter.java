@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OTSDBHTTPWriter {
+    public static void main(String[] args) {
+
+    }
     private void write(String metricName, int timestamp, float value, Map<String,String> tags) throws IOException {
         URL url = new URL("http://localhost:4242/api/put");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
