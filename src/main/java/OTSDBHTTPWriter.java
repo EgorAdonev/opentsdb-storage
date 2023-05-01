@@ -10,16 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OTSDBHTTPWriter {
-    private void write(String metricName,int timestamp, float value,Map<String,String> tags) throws IOException {
+    private void write(String metricName, int timestamp, float value, Map<String,String> tags) throws IOException {
         URL url = new URL("http://localhost:4242/api/put");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
-//        HttpRequest request = HttpRequest.
-//                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-//                .setHeader("Content-Type","application/json")
-//                .uri(create(URI))
-//                .build();
-
         String json = String.format("{\n" +
                 "    \"metric\": \"%s\",\n" +
                 "    \"timestamp\": %d,\n" +
@@ -48,20 +42,5 @@ public class OTSDBHTTPWriter {
             os.write(out);
         }
 
-    }
-    private String getParamsString(Map<String, String> params)
-            throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-            result.append("&");
-        }
-
-        String resultString = result.toString();
-        return resultString.length() > 0
-                ? resultString.substring(0, resultString.length() - 1)
-                : resultString;
     }
 }
