@@ -1,3 +1,4 @@
+import javafx.geometry.Bounds;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -36,7 +37,7 @@ public class FFTGrid extends JFrame{
 //        JFreeChart jfc = ChartFactory.createLineChart("БПФ","частота", "амплитуда",valueDataset,
 //                PlotOrientation.VERTICAL,false,true,false);
 //        ChartFactory.createXYLineChart()
-        double[] input = transformer.createSinWaveBuffer(500, 1000);
+        double[] input = transformer.createSinWaveBuffer(50, 1000);
         double[] spectr = transformer.fft(input);
         
 //        for (int i = 0; i < spectr.length/2 ; i++) {
@@ -56,7 +57,7 @@ public class FFTGrid extends JFrame{
         }
         XYSeriesCollection xySeriesCollection = new XYSeriesCollection(xySeries);
         JFreeChart fftChart = ChartFactory.createXYLineChart("амплитудный спектр", "частота",
-                "амплитуда", xySeriesCollection);
+                "амплитуда", xySeriesCollection,PlotOrientation.VERTICAL,false,false,false );
 
 //        CategoryPlot lineCategory = jfc.getCategoryPlot();
         //lineCategory.setDomainAxis(new CategoryAxis("амплитуда"));
@@ -91,24 +92,14 @@ public class FFTGrid extends JFrame{
         //JFrame mainFrame = new JFrame("БПФ модуль для БД");
         lineGraph.setForeground(new Color(24, 38, 176));
         chartGraph.setForeground(new Color(176, 38, 24));
-        JButton stopButton = new JButton("\u2715");
-        stopButton.setHorizontalAlignment(SwingConstants.CENTER);
-        stopButton.setBackground(new Color(255, 57, 0));
-        stopButton.setSize(50,50);
-        stopButton.addActionListener(event -> {
-            System.exit(0);
-        });
+        //red - new Color(255, 57, 0)
+        super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         super.setFocusableWindowState(true);
         super.setExtendedState(MAXIMIZED_BOTH);
-        super.add(stopButton);
-//        JPanel listPane = lineGraph;
-//        listPane.setLayout(new BoxLayout(lineGraph, BoxLayout.PAGE_AXIS));
-
         super.add(lineGraph);
         // super.add(chartGraph);
-        
+        super.setLocationRelativeTo(null);
         super.setVisible(true);
-        super.setBounds(1000,400,1280,1024);
     }
 
 }

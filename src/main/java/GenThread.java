@@ -36,12 +36,13 @@ public class GenThread implements Runnable{
 
             //if(cpuTagValue%2==0) unixSecondsNow = Instant.now().toEpochMilli();//+cpuTagValue+1;
             Random rand = new Random();
-            int hostTagValue = rand.nextInt(100) + 1;
+            float signalLevel = rand.nextFloat() + 1;
             try (FileWriter fileWriter = new FileWriter(fileName,true);
                  BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                  PrintWriter printWriter = new PrintWriter(bufferedWriter)) {
-                String tsdbLine = String.format("sys.cpu.user %d %d host=web0%d cpu=%d",
-                        unixSecondsNow,hostTagValue,number,cpuTagValue);//add tagv to OpenTSDB
+                String tsdbLine = String.format("signal.level %d %f channel=%d samplingInterval=%d " +
+                                "gain=%d delay=%d measureType=%d",
+                        unixSecondsNow,signalLevel,number,cpuTagValue);//add tagv to OpenTSDB
                 printWriter.print(tsdbLine);
                 printWriter.print(System.lineSeparator());
                 writtenBytes += tsdbLine.getBytes(StandardCharsets.UTF_8).length;
