@@ -39,7 +39,7 @@ public class NumberConverter {
                         float mantissa = 0f;
                         float result = 0f;
 
-                        System.out.println(bin);
+//                        System.out.println(bin);
                         for (int i = 1; i < bin.length()-1; i++) {
                             if(chars[0] == '1') {
                                 chars[i] = chars[i] == '1' ? '0' : '1';
@@ -54,7 +54,7 @@ public class NumberConverter {
                             }
                             result = chars[0] == '1' ? mantissa * (-1f) : mantissa;
                         }
-                        System.out.println(result);
+//                        System.out.println(result);
                         //bin = String.valueOf(Short.parseShort(bin,2));
 //                        float number = (float) Float.parseFloat(bin);
                         doubleList.add(result);

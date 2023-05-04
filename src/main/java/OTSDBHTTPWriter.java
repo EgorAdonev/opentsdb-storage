@@ -1,19 +1,112 @@
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class OTSDBHTTPWriter {
-    public static void main(String[] args) {
+    private static final String EXPERIMENT_DIR = "C:\\Users\\egodo\\Downloads\\experiment_rez";
+    public static void main(String[] args) throws IOException {
+        File dir = new File(EXPERIMENT_DIR);
+        if(dir.isDirectory()) {
+            File[] directoryListing = dir.listFiles();
 
-    }
-    private void write(String metricName, int timestamp, float value, Map<String,String> tags) throws IOException {
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    // STOPSHIP: 05.05.2023  "signal.level %d %f channel=%d samplingInterval=%d " +
+                            //"gain=%d delay=%d measureType=%d"
+                        Map<String, String> tagsMap = null;
+                        if (child.getName().endsWith(".txt")) {
+                            tagsMap = new HashMap<>();
+                            String expName;
+                            LocalDate date = null;
+                            LocalTime time = null;
+                            float samplingInterval = 0;
+                            boolean multiplyOn = false;
+                            int multiplier = 0;
+                            int realizationLength = 0;
+                            int repeatPeriod = 0;
+                            int realizationCount = 0;
+                            int initFreq = 0;
+                            int freqShift = 0;
+                            int sendLength = 0;
+                            int measureType = 0;
+                            int channelGainFactor = 0;
+                            int channelDelay = 0;
+
+                            try (BufferedReader br = new BufferedReader(new FileReader(child))) {
+                                for (int j = 0; j < 18; ++j) {
+                                    String channelSetting = br.readLine();
+
+                                    switch (j) {
+                                        case 0:
+                                            expName = channelSetting;
+                                        case 1:
+                                            date = LocalDate.parse(channelSetting);
+                                        case 2:
+                                            time = LocalTime.parse(channelSetting);
+                                        case 3:
+                                            samplingInterval = Float.parseFloat(channelSetting);
+                                        case 4:
+                                            multiplyOn = !channelSetting.equalsIgnoreCase("0");
+                                        case 5:
+                                            multiplier = Integer.parseInt(channelSetting);
+                                        case 6:
+                                            realizationLength = Integer.parseInt(channelSetting);
+                                        case 7:
+                                            repeatPeriod = Integer.parseInt(channelSetting);
+                                        case 8:
+                                            realizationCount = Integer.parseInt(channelSetting);
+                                        case 9:
+                                            initFreq = Integer.parseInt(channelSetting);
+                                        case 10:
+                                            freqShift = Integer.parseInt(channelSetting);
+                                        case 11:
+                                            sendLength = Integer.parseInt(channelSetting);
+                                        case 12:
+                                            measureType = Integer.parseInt(channelSetting);
+                                        case 13:
+                                            channelGainFactor = Integer.parseInt(channelSetting);
+                                        case 14:
+                                            channelDelay = Integer.parseInt(channelSetting);
+
+                                    }
+                                }
+                                tagsMap.put("expName", child.getName().split("\\.")[0]);
+                                tagsMap.put("date", String.valueOf(date));
+                                tagsMap.put("time", String.valueOf(time));
+                                tagsMap.put("channel", child.getName().split("ch")[1].substring(1));
+                                tagsMap.put("samplingInterval", String.valueOf(samplingInterval));
+                                tagsMap.put("multiplyOn", String.valueOf(multiplyOn));
+                                tagsMap.put("multiplier", String.valueOf(multiplier));
+                                tagsMap.put("realizationLength", String.valueOf(realizationLength));
+                                tagsMap.put("repeatPeriod", String.valueOf(repeatPeriod));
+                                tagsMap.put("realizationCount", String.valueOf(realizationCount));
+                                tagsMap.put("initFreq", String.valueOf(initFreq));
+                                tagsMap.put("freqShift", String.valueOf(freqShift));
+                                tagsMap.put("sendLength", String.valueOf(sendLength));
+                                tagsMap.put("measureType", String.valueOf(measureType));
+                                tagsMap.put("channelGainFactor", String.valueOf(channelGainFactor));
+                                tagsMap.put("channelDelay", String.valueOf(channelDelay));
+
+                            }
+
+                        }
+
+
+                    }
+                }
+            }
+        }
+    private static void write(String metricName, int timestamp, float value, Map<String, String> tags) throws IOException {
         URL url = new URL("http://localhost:4242/api/put");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
@@ -34,7 +127,7 @@ public class OTSDBHTTPWriter {
         }
 
         json = json + "    }";
-        
+        System.out.println(json);
         byte[] out = json.getBytes(StandardCharsets.UTF_8);
         int length = out.length;
 
