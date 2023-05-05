@@ -107,14 +107,14 @@ public class OTSDBHTTPWriter {
                         }
                         for (int i = 0; i < NumberConverter.readCsvFileFromHardware(child).size(); i++) {
                             if (child.getName().endsWith(".csv"))
-                                write("signal.level", (int) System.currentTimeMillis(),
+                                write("signal.level", System.currentTimeMillis(),
                                         NumberConverter.readCsvFileFromHardware(child).get(i), tagsMap);
                         }
                     }
                 }
             }
         }
-    private static void write(String metricName, int timestamp, float value, Map<String, String> tags) throws IOException {
+    private static void write(String metricName, long timestamp, float value, Map<String, String> tags) throws IOException {
 //        URL url = new URL("http://localhost:4242/api/put");
 //        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 //        con.setRequestMethod("POST");
@@ -125,7 +125,7 @@ public class OTSDBHTTPWriter {
                 ,metricName,timestamp,value);
         int tagsCount = tags.size();
         int currTagsCount = 0;
-        json=json+"\"tags\": {\n";
+        json=json+"    \"tags\": {\n";
         for (Map.Entry<String,String> entry : tags.entrySet()) {
             String key = entry.getKey();
             String val = entry.getValue();
@@ -134,8 +134,8 @@ public class OTSDBHTTPWriter {
 
             currTagsCount++;
         }
-        json = json + "    }";
-        json = json + "    }";
+        json = json + "    }\n";
+        json = json + "}\n";
 
         System.out.println(json);
 //        byte[] out = json.getBytes(StandardCharsets.UTF_8);
