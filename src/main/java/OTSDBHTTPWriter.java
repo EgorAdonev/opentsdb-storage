@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class OTSDBHTTPWriter {
@@ -23,9 +24,10 @@ public class OTSDBHTTPWriter {
                 for (File child : directoryListing) {
                     // STOPSHIP: 05.05.2023  "signal.level %d %f channel=%d samplingInterval=%d " +
                             //"gain=%d delay=%d measureType=%d"
-                        Map<String, String> tagsMap = null;
-                        if (child.getName().endsWith(".txt")) {
-                            tagsMap = new HashMap<>();
+                        Map<String, String> tagsMap = new HashMap<>();
+                    //".\\.ch\\d\\.txt"
+                        if (!child.getName().endsWith(".settings.txt") && !child.getName().endsWith(".csv")) {
+//                            tagsMap = new HashMap<>();
                             String expName;
                             LocalDate date = null;
                             LocalTime time = null;
@@ -43,14 +45,17 @@ public class OTSDBHTTPWriter {
                             int channelDelay = 0;
 
                             try (BufferedReader br = new BufferedReader(new FileReader(child))) {
-                                for (int j = 0; j < 18; ++j) {
+                                for (int j = 0; j < 18 && br.readLine() != null; ++j) {
+//                                    br.readLine();
                                     String channelSetting = br.readLine();
-
+                                    System.out.println(channelSetting);
                                     switch (j) {
                                         case 0:
                                             expName = channelSetting;
+//                                            break;
                                         case 1:
-                                            date = LocalDate.parse(channelSetting);
+                                            date = LocalDate.parse(channelSetting, DateTimeFormatter.ofPattern("dd.MM.yyyy",
+                                                    new Locale("RU")));
                                         case 2:
                                             time = LocalTime.parse(channelSetting);
                                         case 3:
@@ -100,16 +105,19 @@ public class OTSDBHTTPWriter {
                             }
 
                         }
-
-
+                        for (int i = 0; i < NumberConverter.readCsvFileFromHardware(child).size(); i++) {
+                            if (child.getName().endsWith(".csv"))
+                                write("signal.level", (int) System.currentTimeMillis(),
+                                        NumberConverter.readCsvFileFromHardware(child).get(i), tagsMap);
+                        }
                     }
                 }
             }
         }
     private static void write(String metricName, int timestamp, float value, Map<String, String> tags) throws IOException {
-        URL url = new URL("http://localhost:4242/api/put");
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("POST");
+//        URL url = new URL("http://localhost:4242/api/put");
+//        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+//        con.setRequestMethod("POST");
         String json = String.format("{\n" +
                 "    \"metric\": \"%s\",\n" +
                 "    \"timestamp\": %d,\n" +
@@ -123,20 +131,22 @@ public class OTSDBHTTPWriter {
             String val = entry.getValue();
             if(currTagsCount == tagsCount - 1) json += String.format("     \"%s\": \"%s\"\n",key,val);
             json += String.format("     \"%s\": \"%s\",\n",key,val);
+
             currTagsCount++;
         }
-
         json = json + "    }";
-        System.out.println(json);
-        byte[] out = json.getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
+        json = json + "    }";
 
-        con.setFixedLengthStreamingMode(length);
-        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        con.connect();
-        try(OutputStream os = con.getOutputStream()) {
-            os.write(out);
-        }
+        System.out.println(json);
+//        byte[] out = json.getBytes(StandardCharsets.UTF_8);
+//        int length = out.length;
+//
+//        con.setFixedLengthStreamingMode(length);
+//        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+//        con.connect();
+//        try(OutputStream os = con.getOutputStream()) {
+//            os.write(out);
+//        }
 
     }
 }
