@@ -53,11 +53,12 @@ public class SettingsFileConverter {
                         case 0:
                             expName = channelSetting;
                             tagsMap.put("expName", channelTxt.getName().split("\\.")[0]);
-//                                            break;
+                            break;
                         case 1:
                             date = LocalDate.parse(channelSetting, DateTimeFormatter.ofPattern("dd.MM.yyyy",
                                     new Locale("RU")));
                             tagsMap.put("date", String.valueOf(date));
+                            break;
                         case 2:
                             time = LocalTime.parse(channelSetting);
                             tagsMap.put("time", String.valueOf(time));
