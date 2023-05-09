@@ -14,14 +14,14 @@ public class NumberConverter {
             File[] directoryListing = dir.listFiles();
             if (directoryListing != null) {
                 for (File child : directoryListing) {
-                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
+//                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
                 }
             }
         }
 //            System.out.println(readCsvFileFromHardware("C:\\Users\\egodo\\Downloads\\experiment_rez\\Test2.ch2.csv"));
     }
 
-    public static List<Float> readCsvFileFromHardware(File file) throws IOException {
+    public List<Float> readCsvFileFromHardware(File file) throws IOException {
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             List<Float> doubleList = new ArrayList<>();
