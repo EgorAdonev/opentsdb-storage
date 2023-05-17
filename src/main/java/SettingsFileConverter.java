@@ -45,8 +45,6 @@ public class SettingsFileConverter {
             try(Scanner in = new Scanner(channelTxt)){
                 String channelSetting;
                 for (int j = 0; j < 18 && in.next() != null; ++j) {
-
-//                                    br.readLine();
                     channelSetting = in.next();
 //                    System.out.println(channelSetting);
                     switch (j) {

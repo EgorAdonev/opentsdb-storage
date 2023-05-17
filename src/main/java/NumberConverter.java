@@ -8,20 +8,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class NumberConverter {
+
     public static void main(String[] args) throws IOException {
         File dir = new File("C:\\Users\\egodo\\Downloads\\experiment_rez");
         if(dir.isDirectory()) {
             File[] directoryListing = dir.listFiles();
             if (directoryListing != null) {
                 for (File child : directoryListing) {
-//                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
+                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
                 }
             }
         }
 //            System.out.println(readCsvFileFromHardware("C:\\Users\\egodo\\Downloads\\experiment_rez\\Test2.ch2.csv"));
     }
 
-    public List<Float> readCsvFileFromHardware(File file) throws IOException {
+    public static List<Float> readCsvFileFromHardware(File file) throws IOException {
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             List<Float> doubleList = new ArrayList<>();
@@ -29,34 +30,28 @@ public class NumberConverter {
                     for (String str : line.split(";")) {
                         short num = Short.parseShort(str);
                         String bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
-                        if(num < 0){
-                            bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
-                        }
-//                        String bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
+//                        System.out.println(bin);
+//                        if(num < 0){}
 //                        bin = bin.substring(bin.indexOf("1"));
-                        char[] chars = bin.toCharArray();
-
+                        char[] binaryDigits = bin.toCharArray();
                         float mantissa = 0f;
                         float result = 0f;
 
-//                        System.out.println(bin);
-                        for (int i = 1; i < bin.length()-1; i++) {
-                            if(chars[0] == '1') {
-                                chars[i] = chars[i] == '1' ? '0' : '1';
-                            }
-                            char digit = chars[i];
+                        for (int i = 0; i < bin.length(); i++) {
+//                            if(binaryDigits[0] == '1') {
+                                binaryDigits[i] = binaryDigits[i] == '1' ? '0' : '1';
+//                            }
+                            char digit = binaryDigits[i];
 
                             switch (digit){
                                 case '0':
-                                    mantissa += 0 * Math.pow(2,-i);
+                                    mantissa += 0 * Math.pow(2,i);
                                 case '1':
-                                    mantissa += 1 * Math.pow(2,-i);
+                                    mantissa += 1 * Math.pow(2,i);
                             }
-                            result = chars[0] == '1' ? mantissa * (-1f) : mantissa;
+//                            result = binaryDigits[0] == '1' ? mantissa * (-1f) : mantissa;
+                            result = (float) (mantissa * (1.0/32768.0));
                         }
-//                        System.out.println(result);
-                        //bin = String.valueOf(Short.parseShort(bin,2));
-//                        float number = (float) Float.parseFloat(bin);
                         doubleList.add(result);
                     }
             }
