@@ -1,104 +1,212 @@
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.block.BlockBorder;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYSeries;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.data.RangeType;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DefaultValueDataset;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class FFTGrid extends JFrame{
+public class FFTGrid {
     private JLabel fftLabel = new JLabel("");
-    private JPanel lineGraph = new JPanel();
-    private JPanel chartGraph = new JPanel();
+    private JPanel spectrumGraph = new JPanel();
 
-    OTSDBFFTransformer transformer = new OTSDBFFTransformer();
-    // DefaultCategoryDataset valueDataset = new DefaultCategoryDataset();
+    private JPanel signalGraph = new JPanel();
 
-    public FFTGrid(){
-        super("Быстрое преобразование Фурье модуль для БД");
-        showLineGraph();
-        drawUI();
+    String title;
+
+
+    public FFTGrid(String title){
+        this.title = title;
     }
 
 
-    private void showLineGraph() {
-//        JFreeChart jfc = ChartFactory.createLineChart("БПФ","частота", "амплитуда",valueDataset,
-//                PlotOrientation.VERTICAL,false,true,false);
-//        ChartFactory.createXYLineChart()
-        double[] input = transformer.createSinWaveBuffer(50, 1000);
-        double[] spectr = transformer.fft(input);
-        
-//        for (int i = 0; i < spectr.length/2 ; i++) {
-//            valueDataset.addValue(spectr[i],"значение",String.valueOf(i));
-//        }
+    OTSDBFFTransformer transformer = new OTSDBFFTransformer();
+    double[] input = transformer.createSinWaveBuffer(50, 1000);
+    double[] spectr = transformer.fft(input);
+    private XYSeriesCollection spectrumCollection;
+    private XYSeriesCollection xySeriesCollection;
+
+
+//    public FFTGrid(){
+//        super("Быстрое преобразование Фурье модуль для БД");
+//        showLineGraph();
+//        drawUI();
+//    }
+
+    private JPanel getSignalChartPanel(){
+
         XYSeries inputXY = new XYSeries("входной ряд");
         for (int i = 0; i < input.length; i++) {
             inputXY.add(i, input[i]);
         }
-        XYSeriesCollection inputCollection = new XYSeriesCollection(inputXY);
+        xySeriesCollection = new XYSeriesCollection(inputXY);
         JFreeChart signalChart = ChartFactory.createXYLineChart("исходные данные", "время(мс)",
-                "амплитуда", inputCollection);
+                "амплитуда", xySeriesCollection);
 
-        XYSeries xySeries = new XYSeries("амплитудный спектр");
-        for (int i = 0; i < spectr.length/2; i++) {
-            xySeries.add(i, spectr[i]);
-        }
-        XYSeriesCollection xySeriesCollection = new XYSeriesCollection(xySeries);
-        JFreeChart fftChart = ChartFactory.createXYLineChart("амплитудный спектр", "частота",
-                "амплитуда", xySeriesCollection,PlotOrientation.VERTICAL,false,false,false );
+        ChartPanel signalChartPanel = new ChartPanel(signalChart);
+        signalChartPanel.setFillZoomRectangle(true);
+        signalChartPanel.setMouseWheelEnabled(true);
 
-//        CategoryPlot lineCategory = jfc.getCategoryPlot();
-        //lineCategory.setDomainAxis(new CategoryAxis("амплитуда"));
-//        lineCategory.setOrientation(PlotOrientation.VERTICAL);
-//        lineCategory.setBackgroundPaint(Color.black);
-//        XYPlot rangeAxis = (XYPlot) fftChart.getXYPlot();
-
-//        NumberAxis rangeAxis = (NumberAxis) lineCategory.getRangeAxis();
-//        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-//        LineAndShapeRenderer lineAndShapeRenderer = (LineAndShapeRenderer) lineCategory.getRenderer();
-//        Color lineGraphColor = new Color(255,131,0);
-//        lineAndShapeRenderer.setSeriesPaint(0,lineGraphColor);
-
-        ChartPanel lineChartPanel = new ChartPanel(fftChart);
-        lineChartPanel.setFillZoomRectangle(true);
-        lineChartPanel.setMouseWheelEnabled(true);
-
-        lineGraph.removeAll();
-        lineGraph.add(lineChartPanel, BorderLayout.EAST);
-        lineGraph.validate();
-
-        // ChartPanel chartPanel = new ChartPanel(signalChart);
-        // chartPanel.setFillZoomRectangle(true);
-        // chartPanel.setMouseWheelEnabled(true);
-
-        // chartGraph.removeAll();
-        // chartGraph.add(chartPanel, BorderLayout.WEST);
-        // chartGraph.validate();
+        return signalChartPanel;
     }
-    private void drawUI() {
-        //JFrame mainFrame = new JFrame("БПФ модуль для БД");
-        lineGraph.setForeground(new Color(24, 38, 176));
-        chartGraph.setForeground(new Color(176, 38, 24));
-        //red - new Color(255, 57, 0)
-        super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        super.setFocusableWindowState(true);
-        super.setExtendedState(MAXIMIZED_BOTH);
-        super.add(lineGraph);
-        // super.add(chartGraph);
-        super.setLocationRelativeTo(null);
-        super.setVisible(true);
+//    private JPanel getSpectrumChartPanel() {
+////        JFreeChart jfc = ChartFactory.createLineChart("БПФ","частота", "амплитуда",valueDataset,
+////                PlotOrientation.VERTICAL,false,true,false);
+////        ChartFactory.createXYLineChart()
+//
+//        XYSeries xySeries = new XYSeries("амплитудный спектр");
+//        for (int i = 0; i < spectr.length/2; i++) {
+//            xySeries.add(i, spectr[i]);
+//        }
+//        spectrumCollection = new XYSeriesCollection(xySeries);
+//        JFreeChart fftChart = ChartFactory.createXYLineChart("амплитудный спектр", "частота",
+//                "амплитуда", spectrumCollection,PlotOrientation.VERTICAL,false,false,false );
+//
+//        ChartPanel spectrumChartPanel = new ChartPanel(fftChart);
+//        spectrumChartPanel.setFillZoomRectangle(true);
+//        spectrumChartPanel.setMouseWheelEnabled(true);
+//
+//        return spectrumChartPanel;
+////        spectrumGraph.removeAll();
+////        spectrumGraph.add(spectrumChartPanel, BorderLayout.EAST);
+////        spectrumGraph.validate();
+//
+//    }
+
+
+//    private void fillSpectrumChart() {
+//        SwingWorker<Void, XYSeries> worker = new SwingWorker<Void, XYSeries>() {
+//            @Override
+//            protected Void doInBackground() throws Exception {
+//                int numberOfElements = 1000;
+////                XYSeries xySeries = new XYSeries("амплитудный спектр");
+////                for (int i = 0; i < spectr.length / 2; i++) {
+////                    xySeries.add(i, spectr[i]);
+////                }
+//                XYSeries series = null;
+//                for (int y = 0; y < 12; y++) {
+//                    series = new XYSeries("Plot " + y);
+//                    for (int x = 0; x < numberOfElements; x++) {
+//                        series.add(x, y); //add x,y point
+//                    }
+//                }
+//                publish(series);
+//                Thread.sleep(100);// just for animation purpose
+//                return null;
+//            }
+//            @Override
+//            protected void process(List<XYSeries> chunks) {
+//                for(XYSeries series : chunks){
+//                    spectrumCollection.addSeries(series);
+//                }
+//            }
+//
+//    };
+//        worker.execute();
+//    }
+
+    private void fillSignalChart() {
+        SwingWorker<Void, XYSeries> worker = new SwingWorker<Void, XYSeries>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                int numberOfElements=1000;
+                XYSeries inputXY = new XYSeries("входной ряд");
+                for (int i = 0; i < input.length; i++) {
+                    inputXY.add(i, input[i]);
+                }
+//                XYSeries series = null;
+//                for (int y = 0; y < 12; y++) {
+//                    series = new XYSeries("Plot " + y);
+//                    for (int x = 0; x < numberOfElements; x++) {
+//                        series.add(x, y); //add x,y point
+//                    }
+//                }
+                publish(inputXY);
+                Thread.sleep(100);// just for animation purpose
+                return null;
+            }
+            @Override
+            protected void process(List<XYSeries> chunks) {
+                for(XYSeries series : chunks){
+                    xySeriesCollection.addSeries(series);
+                }
+            }
+
+        };
+        worker.execute();
     }
+
+    public void initSignalGUI(){
+        JButton clearChart =  new JButton("Очистить график");
+        clearChart.addActionListener(e -> xySeriesCollection.removeAllSeries());
+
+        JButton fillChart = new JButton("Заполнить график") ;
+        fillChart.addActionListener(e -> {
+            xySeriesCollection.removeAllSeries();
+            fillSignalChart();
+        });
+
+//        private void drawUI() {
+//            //JFrame mainFrame = new JFrame("БПФ модуль для БД");
+//            spectrumGraph.setForeground(new Color(24, 38, 176));
+//            signalGraph.setForeground(new Color(176, 38, 24));
+//            //red - new Color(255, 57, 0)
+//            super.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+//            super.setFocusableWindowState(true);
+//            super.setExtendedState(MAXIMIZED_BOTH);
+//            super.add(spectrumGraph);
+//            // super.add(chartGraph);
+//            super.setLocationRelativeTo(null);
+//            super.setVisible(true);
+//        }
+
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        controlPanel.add(clearChart);
+        controlPanel.add(fillChart);
+
+        JPanel content = new JPanel(new BorderLayout(5, 5));
+        content.add(getSignalChartPanel(), BorderLayout.CENTER); //add the ChartPanel here
+        content.add(controlPanel, BorderLayout.SOUTH);
+
+        JFrame frame = new JFrame("БПФ модуль для БД");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.getContentPane().add(content);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+//    public void initFFTGUI(){
+//
+//        JButton clearChart =  new JButton("Очистить график");
+//        clearChart.addActionListener(e -> spectrumCollection.removeAllSeries());
+//
+//        JButton fillChart = new JButton("Заполнить график") ;
+//        fillChart.addActionListener(e -> {
+//            spectrumCollection.removeAllSeries();
+//            fillSpectrumChart();
+//        });
+//
+//
+//        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+//        controlPanel.add(clearChart);
+//        controlPanel.add(fillChart);
+//
+//        JPanel content = new JPanel(new BorderLayout(5, 5));
+//        content.add(getSpectrumChartPanel(), BorderLayout.CENTER); //add the ChartPanel here
+//        content.add(controlPanel, BorderLayout.SOUTH);
+//
+//        JFrame frame = new JFrame("БПФ модуль для БД");
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.getContentPane().add(content);
+//        frame.pack();
+//        frame.setLocationRelativeTo(null);
+//        frame.setVisible(true);
+//    }
 
 }
