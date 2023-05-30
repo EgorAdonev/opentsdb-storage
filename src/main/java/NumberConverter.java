@@ -15,7 +15,7 @@ public class NumberConverter {
             File[] directoryListing = dir.listFiles();
             if (directoryListing != null) {
                 for (File child : directoryListing) {
-                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
+//                    if (child.getName().endsWith(".csv")) System.out.println(readCsvFileFromHardware(child));
                 }
             }
         }
@@ -30,28 +30,25 @@ public class NumberConverter {
                     for (String str : line.split(";")) {
                         short num = Short.parseShort(str);
                         String bin = String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
-//                        System.out.println(bin);
-//                        if(num < 0){}
 //                        bin = bin.substring(bin.indexOf("1"));
                         char[] binaryDigits = bin.toCharArray();
                         float mantissa = 0f;
-                        float result = 0f;
-
-                        for (int i = 0; i < bin.length(); i++) {
-//                            if(binaryDigits[0] == '1') {
+                        float result;
+                        if(binaryDigits[0] == '1') {
+                            for (int i = 0; i < binaryDigits.length; i++) {
                                 binaryDigits[i] = binaryDigits[i] == '1' ? '0' : '1';
-//                            }
-                            char digit = binaryDigits[i];
-
-                            switch (digit){
-                                case '0':
-                                    mantissa += 0 * Math.pow(2,i);
-                                case '1':
-                                    mantissa += 1 * Math.pow(2,i);
-                            }
 //                            result = binaryDigits[0] == '1' ? mantissa * (-1f) : mantissa;
-                            result = (float) (mantissa * (1.0/32768.0));
+                            }
                         }
+                        for (int i = 0; i < binaryDigits.length; i++) {
+                            char digit = binaryDigits[i];
+                            switch (digit) {
+                                case '1':
+                                    mantissa += 1 * Math.pow(2, i);
+//                                    System.out.println(mantissa);
+                            }
+                        }
+                        result = (float) (mantissa * (1.0/32768.0));
                         doubleList.add(result);
                     }
             }
@@ -76,30 +73,5 @@ public class NumberConverter {
             return doubleList;
         }
     }
-
-    public double[] readBinaryFileFromHardware(File file) throws FileNotFoundException {
-        short[] values;
-        DataInputStream dis = new DataInputStream(
-                new BufferedInputStream(
-                        new FileInputStream(file)));
-        for (int i = 0; i < 10; i++) {
-
-        }
-        while(true) {
-            try {
-                BigDecimal a = BigDecimal.valueOf(dis.readByte());
-                int index;
-                //index++;
-                System.out.println(a);
-            }
-            catch(IOException eof) {
-                System.out.println ("End of File");
-                break;
-            }
-        }
-        return new double[0];
-    }
-
-
 
 }
