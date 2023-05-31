@@ -43,6 +43,18 @@ public class OTSDBFFTransformer {
 
         return output;
     }
+    public double[] createStepBuffer(int ms) {
+        samples = (int)((ms * SAMPLE_RATE) / 1000);
+        double[] output = new double[samples];
+
+        for (int i = 0; i < output.length; i++) {
+//            double angle = 2.0 * Math.PI * i / period;
+            output[i] = 1;
+            if(i%2>=samples/2) output[i] = 0;
+        }
+        return output;
+    }
+
     public static void main(String[] args) {
         long nanoStart = System.nanoTime();
         long timeElapsed = System.nanoTime() - nanoStart;
