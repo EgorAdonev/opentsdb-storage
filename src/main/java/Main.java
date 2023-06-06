@@ -1,22 +1,37 @@
 import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+import java.util.Arrays;
 
 public class Main {
+    static FFTGrid fftGrid;
 
-    public static void main(String[] args) {
-        int arr[] = new int[(1024/4)*1000000];
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = i;
+    static {
+        try {
+            fftGrid = new FFTGrid("JFreeChart #1");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-// список экспериментов
-        //дизайн с диалоговым окном для введения директории
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        //дизайн с диалоговым окном для введения директории - готово
         //фильтрацию по тэгам и по метрикам
-        // дату в таймстемп
+        //список экспериментов
+        //выбор каналов
+        //дату в таймстемп
 //        FFTGrid fftGrid = new FFTGrid();
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new FFTGrid("JFreeChart #1").initSignalGUI();
-//                new FFTGrid("JFreeChart #2").initFFTGUI();
+                try {
+                    fftGrid.initGUI();
+                    fftGrid.initFFTGUI();
+                } catch (IOException e) {
+                    System.out.println(Arrays.toString(e.getStackTrace()));
+                    throw new RuntimeException(e);
+                }
             }
         });
     }

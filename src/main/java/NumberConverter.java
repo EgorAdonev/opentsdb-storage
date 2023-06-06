@@ -19,7 +19,6 @@ public class NumberConverter {
                 }
             }
         }
-//            System.out.println(readCsvFileFromHardware("C:\\Users\\egodo\\Downloads\\experiment_rez\\Test2.ch2.csv"));
     }
 
     public static List<Float> readCsvFileFromHardware(File file) throws IOException {

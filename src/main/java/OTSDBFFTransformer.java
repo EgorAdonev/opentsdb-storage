@@ -3,10 +3,7 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 
 public class OTSDBFFTransformer {
@@ -80,6 +77,47 @@ public class OTSDBFFTransformer {
         }
         return spectrumValues;
     }
+
+    Object[] fft(Object[] arr){
+        FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
+//        List<Double> collection = new ArrayList<>(samples);
+////        Random rand = new Random();
+//        for (int i = 0; i < samples; i++) {
+//            collection.add(i, arr[i]);
+//        }
+        Object[] objSpectrumValues = new Object[arr.length];
+        //Complex[] fftResult = fft.transform(toDoubleArray(collection), TransformType.FORWARD);
+        Object[] objects = prefft(arr);
+        double[] doubles = new double[objects.length];
+        for (int i = 0; i < objects.length; i++) {
+            doubles[i] = Double.parseDouble(objects[i].toString().substring(1).split(",")[0]);
+        }
+        Complex[] fftResult = fft.transform(doubles, TransformType.FORWARD);
+        //вычисляем модуль квадратов действительной и мнимой части для построения амплитудного спектра
+        for (int i = 0; i < arr.length; i++) {
+            double rr = (fftResult[i].getReal());
+            double ri = (fftResult[i].getImaginary());
+            objSpectrumValues[i] = Math.sqrt((rr * rr) + (ri * ri));
+        }
+        return objSpectrumValues;
+    }
+
+    private Object[] prefft(Object[] x) {
+        int N = x.length;
+        boolean b = true;
+        int i = 0;
+        while (b) {
+            if (N == Math.pow(2 ,++i)) return x;
+            else if (N < Math.pow(2 ,i)) b = false ;
+        }
+        Complex[] X = new Complex[( int ) Math.pow (2, i)];
+        for (int  j = 0;j < Math.pow (2 ,i); j++) {
+            if (j < N) X[j] = Complex.valueOf(Double.parseDouble(x[j].toString()));
+            else  X [j] = Complex.ZERO;
+        }
+        return X;
+    }
+
     public static Complex[] prefft(Complex[] x) {
         int N = x.length;
         boolean b = true;
