@@ -12,12 +12,8 @@ public class SettingsFileConverter {
     }
 
     public Map<String,String> convertChannelTxtToMap(File channelTxt) {
-        // STOPSHIPP: 05.05.2023  "signal.level %d %f channel=%d samplingInterval=%d " + "gain=%d delay=%d measureType=%d"
         Map<String, String> tagsMap = new HashMap<>();
 
-        //".\\.ch\\d\\.txt"
-//        if (!channelTxt.getName().endsWith(".settings.txt") && channelTxt.getName().endsWith(".txt")) {
-//                            tagsMap = new HashMap<>();
         String expName;
         LocalDate date = null;
         LocalTime time = null;
@@ -52,13 +48,11 @@ public class SettingsFileConverter {
         try (Scanner in = new Scanner(channelTxt)) {
             String channelSetting;
             for (int j = 0; j < 18; ++j) {
-//                channelSetting = fileContent.get(j);
                 channelSetting = in.next();
-//                    System.out.println(channelSetting);
                 switch (j) {
                     case 0:
-                        expName = channelSetting;
-                        tagsMap.put("exp_name", channelTxt.getName().split("\\.")[0]);
+//                        expName = channelSetting;
+//                        tagsMap.put("expName", channelTxt.getName().split("\\.")[0]);
                         break;
                     case 1:
                         date = LocalDate.parse(channelSetting, DateTimeFormatter.ofPattern("dd.MM.yyyy",
@@ -83,7 +77,7 @@ public class SettingsFileConverter {
                         break;
                     case 6:
                         realizationLength = Integer.parseInt(channelSetting);
-                        tagsMap.put("realisation_length", String.valueOf(realizationLength));
+                        tagsMap.put("realization_length", String.valueOf(realizationLength));
                         break;
                     case 7:
                         repeatPeriod = Integer.parseInt(channelSetting);
@@ -91,7 +85,7 @@ public class SettingsFileConverter {
                         break;
                     case 8:
                         realizationCount = Integer.parseInt(channelSetting);
-                        tagsMap.put("realisation_count", String.valueOf(realizationCount));
+                        tagsMap.put("realization_count", String.valueOf(realizationCount));
                         break;
                     case 9:
                         initFreq = Integer.parseInt(channelSetting);
@@ -107,7 +101,7 @@ public class SettingsFileConverter {
                         break;
                     case 12:
                         measureType = Integer.parseInt(channelSetting);
-                        tagsMap.put("measureType", String.valueOf(measureType));
+                        tagsMap.put("measure_type", String.valueOf(measureType));
                         break;
                     case 13:
                         channelGainFactor = Integer.parseInt(channelSetting);
@@ -118,9 +112,7 @@ public class SettingsFileConverter {
                         tagsMap.put("delay", String.valueOf(channelDelay));
                         break;
                 }
-                tagsMap.put("channel", channelTxt.getName().split("\\.")[1].substring(2));
             }
-
             // OR tagsMap.put("expName", expName);
             return tagsMap;
         } catch (FileNotFoundException e) {
